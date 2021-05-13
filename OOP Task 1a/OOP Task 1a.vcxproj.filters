@@ -1,0 +1,165 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <ClCompile Include="Game.cpp">
+      <Filter>CPP</Filter>
+    </ClCompile>
+    <ClCompile Include="Player.cpp">
+      <Filter>CPP</Filter>
+    </ClCompile>
+    <ClCompile Include="RandomNumberGenerator.cpp">
+      <Filter>CPP</Filter>
+    </ClCompile>
+    <ClCompile Include="Source.cpp">
+      <Filter>CPP</Filter>
+    </ClCompile>
+    <ClCompile Include="Wall.cpp">
+      <Filter>CPP</Filter>
+    </ClCompile>
+    <ClCompile Include="Coin.cpp">
+      <Filter>CPP</Filter>
+    </ClCompile>
+    <ClCompile Include="Ghost.cpp">
+      <Filter>CPP</Filter>
+    </ClCompile>
+    <ClCompile Include="PowerPellet.cpp">
+      <Filter>CPP</Filter>
+    </ClCompile>
+    <ClCompile Include="Cherry.cpp">
+      <Filter>CPP</Filter>
+    </ClCompile>
+    <ClCompile Include="Blinky.cpp">
+      <Filter>CPP</Filter>
+    </ClCompile>
+    <ClCompile Include="Pinky.cpp">
+      <Filter>CPP</Filter>
+    </ClCompile>
+    <ClCompile Include="Clyde.cpp">
+      <Filter>CPP</Filter>
+    </ClCompile>
+    <ClCompile Include="GameItem.cpp">
+      <Filter>CPP</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="Constants.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="Game.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="Player.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="Wall.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="Coin.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="Ghost.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="PowerPellet.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="Cherry.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="Blinky.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="Pinky.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="Clyde.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="RandomNumberGenerator.h">
+      <Filter>CPP</Filter>
+    </ClInclude>
+    <ClInclude Include="GameItem.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="Header">
+      <UniqueIdentifier>{9506a337-cd52-4c32-aed7-b709ab7b964d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="CPP">
+      <UniqueIdentifier>{863d8a61-2381-4c47-8e2f-cf5d3eec588b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Images">
+      <UniqueIdentifier>{bec4cbda-85b8-41fe-9b77-e049fe86515b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Files">
+      <UniqueIdentifier>{3c738f03-70e5-4c39-a594-75ef0ea4f878}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Sounds">
+      <UniqueIdentifier>{966bed01-0474-45c1-b617-278a86f9b315}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <Text Include="level1.txt">
+      <Filter>Files</Filter>
+    </Text>
+    <Text Include="highScores.txt">
+      <Filter>Files</Filter>
+    </Text>
+    <Text Include="level2.txt">
+      <Filter>Files</Filter>
+    </Text>
+    <Text Include="level3.txt">
+      <Filter>Files</Filter>
+    </Text>
+    <Text Include="SaveData.txt">
+      <Filter>Files</Filter>
+    </Text>
+    <Text Include="SavedScore.txt">
+      <Filter>Files</Filter>
+    </Text>
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="pacman.png">
+      <Filter>Images</Filter>
+    </Image>
+    <Image Include="cherry.png">
+      <Filter>Images</Filter>
+    </Image>
+    <Image Include="coin.png">
+      <Filter>Images</Filter>
+    </Image>
+    <Image Include="dot.jpg">
+      <Filter>Images</Filter>
+    </Image>
+    <Image Include="dots.png">
+      <Filter>Images</Filter>
+    </Image>
+    <Image Include="newdot.png">
+      <Filter>Images</Filter>
+    </Image>
+    <Image Include="pellet.png">
+      <Filter>Images</Filter>
+    </Image>
+    <Image Include="redGhost.png">
+      <Filter>Images</Filter>
+    </Image>
+    <Image Include="sprites32.png">
+      <Filter>Images</Filter>
+    </Image>
+  </ItemGroup>
+  <ItemGroup>
+    <Media Include="pacman_beginning.mp3">
+      <Filter>Sounds</Filter>
+    </Media>
+    <Media Include="pacman_death.mp3">
+      <Filter>Sounds</Filter>
+    </Media>
+    <Media Include="pacman_munch.mp3">
+      <Filter>Sounds</Filter>
+    </Media>
+    <Media Include="pacmanMunch.wav">
+      <Filter>Sounds</Filter>
+    </Media>
+  </ItemGroup>
+</Project>
