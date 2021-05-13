@@ -20,9 +20,10 @@ void Game::Setup()
 {
     //Set up the variables needed to run the game, this happens on start up and after every time you die in the game or have completed a level.
     HasPlayerLostALife = false;
-    HasClydeMoved = true;
-    HasBlinkyMoved = true;
-    HasPinkyMoved = true;
+    for (int i = 0; i < ghosts.size(); i++)
+    {
+        ghosts[i]->hasMovedTrue();
+    }
 	needToResume = false;
     ghostExitSpawn = false;
     ghostRunningAway = false;
@@ -74,10 +75,11 @@ void Game::Setup()
 	{
 		Dir = "SaveData.txt";
 		needToResume = true;
+        for (int i = 0; i < ghosts.size(); i++) 
+        {
+            ghosts[i]->hasMovedFalse();
+        }
 		ghostExitSpawn = true;
-		HasClydeMoved = false;
-		HasBlinkyMoved = false;
-		HasPinkyMoved = false;
 		isUsingSavedData = true;
 		//file.open("SaveData.txt");
 	}
@@ -454,7 +456,6 @@ const bool Game::IsPlayerAtCherry(int x, int y) const
 ///
 /// Ghost Movement.
 /// 
-
  
 const void Game::MoveGhost(int direction, int index) 
 {
@@ -561,7 +562,6 @@ const bool Game::HasGhostExitSpawn(int x, int y, int index) const
 /// </summary>
 vector<vector<char>> Game::PrepareGrid()
 {
-
     // create the 2D grid
     vector<vector<char>> grid;
 

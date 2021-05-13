@@ -28,9 +28,6 @@ class Game
 
 	  // variables and counters
 	  int currentDirection = 0;
-	  int clydeInput = 0;
-	  int blinkyInput = 0;
-      int pinkyInput = 0;
 	  int coinOriginalSize = 0; // used to check when only 1/4 of coins are left
 
 	  float ghostCountDown = 0.3f;
@@ -65,9 +62,6 @@ class Game
 	  bool ghostExitSpawn = false;
 
 	  // movement bools
-	  bool HasClydeMoved = false;
-	  bool HasBlinkyMoved = false;
-	  bool HasPinkyMoved = false;
 
 	  // These bools, are all used to return which way pacman is looking as to switch the direction of the sprite.
       bool playerLookLeft = false;	
