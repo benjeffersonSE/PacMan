@@ -22,11 +22,12 @@ class Game
    public:
       // initialise variables
       Player player;
-      Blinky blinky;
-      Clyde clyde;
-      Pinky pinky;
+      //Blinky* blinky = nullptr;
+      //Clyde clyde;
+      //Pinky pinky;
       Cherry cherry;
       vector<vector<char>> PrepareGrid();
+	  ~Game();
 
 	  // variables and counters
 	  int currentDirection = 0;
@@ -97,7 +98,9 @@ class Game
 		  const bool IsCoinAtPosition(int x, int y) const;
 		  const bool IsPowerPelletAtPosition(int x, int y) const;
 		  const bool IsCherryAtPosition(int x, int y) const;
-		  const bool IsGhostAtPosition(int x, int y) const;
+
+		  const bool IsAnyGhostAtPosition(int x, int y) const;
+		  const bool IsGhostAtPosition(int x, int y, int index) const;
 
 		  // Player functions 
 		  const bool IsPlayerAtWall(int x, int y) const;
@@ -116,11 +119,13 @@ class Game
 		  const bool IsClydeAtWall(int x, int y) const;
 		  const bool IsBlinkyAtWall(int x, int y) const;
 		  const bool IsPinkyAtWall(int x, int y) const;
+		  const bool IsGhostAtWall(int x, int y, int index) const;
+		  const bool IsGhostAtGhost(int x, int y, int index) const;
 
 		  const bool HasClydeExitSpawn(int x, int y) const;
 		  const bool HasBlinkyExitSpawn(int x, int y) const;
 		  const bool HasPinkyExitSpawn(int x, int y) const;
-
+		  const bool HasGhostExitSpawn(int x, int y) const;
 
 	  // mutators
 
@@ -151,6 +156,7 @@ class Game
 		  const void MovePinky(int directon);
 		  const void MoveClyde(int direction);
 		  const void MoveBlinky(int direction);
+		  const void MoveGhost(int direction, int index);
 
    private:  
 
@@ -163,7 +169,7 @@ class Game
        //Vectors
        vector<Wall> walls;
        vector<Coin> coins;
-       vector<Ghost> ghosts;
+       vector<Ghost*> ghosts;
        vector<PowerPellet> PowerPellets;
        vector<Cherry> Cherries;
        

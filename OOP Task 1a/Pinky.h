@@ -14,7 +14,7 @@ public:
 	// constructors
 	Pinky();
 
-	const int getDirection();
+	string getGhostName() const override;
 
 private:
 	// data members

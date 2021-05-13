@@ -5,7 +5,7 @@ Pinky::Pinky() : symbol(PINKY), x(0), y(0), dx(0), dy(0)
 
 }
 
-const int Pinky::getDirection()
+string Pinky::getGhostName() const
 {
-	return direction = rand() % 4 + 262;
+	return "Pinky";
 }

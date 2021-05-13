@@ -16,9 +16,7 @@ public:
     Clyde();
 
     // assessors
-
-	const int getDirection();
-
+    string getGhostName() const override;
     // mutators
 
 private:

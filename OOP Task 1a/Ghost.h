@@ -2,6 +2,7 @@
 
 #include <assert.h>
 #include <stdlib.h>
+#include <String>
 #include "constants.h"
 
 using namespace std;
@@ -19,6 +20,11 @@ public:
 	const int GetY() const;
 	const int getDirection() const;
 	const bool IsAtPosition(int x, int y) const;
+	bool hasMoved();
+	void hasMovedTrue();
+	void hasMovedFalse();
+	virtual string getGhostName() const;
+	const int getDirection();
 
 	// mutators
 	const void Move(int direction);
@@ -31,6 +37,7 @@ protected:
 	int dx;
 	int dy;
 	int direction = 0;
+	bool ghostMoved = true;
 	// support functions
 	const void UpdatePosition(int dx, int dy);
 };

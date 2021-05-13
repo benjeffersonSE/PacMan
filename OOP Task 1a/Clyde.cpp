@@ -5,7 +5,7 @@ Clyde::Clyde() : symbol(CLYDE), x(0), y(0), dx(0), dy(0)
 
 }
 
-const int Clyde::getDirection()
+string Clyde::getGhostName() const
 {
-	return direction = rand() % 4 + 262;
+	return "Clyde";
 }
