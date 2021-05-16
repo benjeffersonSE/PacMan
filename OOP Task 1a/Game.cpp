@@ -126,10 +126,10 @@ void Game::Setup()
                     ghosts.push_back(new Blinky(i + 1, lineNum + 1));
 					break;
 				case 'o':
-                    ghosts.push_back(new Clyde());
+                    ghosts.push_back(new Clyde(i + 1, lineNum + 1));
 					break;
 				case 'i':
-                    ghosts.push_back(new Pinky());
+                    ghosts.push_back(new Pinky(i + 1, lineNum + 1));
                     break;
 				case 'v':
 					player.setPosition(i + 1, lineNum + 1);
@@ -193,7 +193,6 @@ void Game::Setup()
 	}
 
 	coinOriginalSize = coins.size(); // get list of coins for each setup
-    LoadGhosts();
 }
 
 
@@ -222,6 +221,11 @@ void Game::Clear()
     walls.clear();
     coins.clear();
     PowerPellets.clear();
+    for (int i = 0; i < ghosts.size(); i++)
+    {
+        delete ghosts[i];
+    }
+    ghosts.clear();
 }
 
 ///
@@ -515,6 +519,12 @@ const void Game::MoveGhost(int direction, int index)
         //direction = 0;
         //HasClydeMoved = false;
         //HasBlinkyMoved = false;
+        MoveGhost(ghostInput, index);
+    }
+
+    if (IsGhostAtGhost(ghosts[index]->GetX(), ghosts[index]->GetY(), index)) 
+    {
+        ghostInput = 265;
         MoveGhost(ghostInput, index);
     }
 }
@@ -931,12 +941,12 @@ const void Game::Update(float time)
                             ghostInput = 263;
                             MoveGhost(ghostInput, i);
                         }
-                        if (ghosts[i]->GetY() < 10)
+                        if (ghosts[i]->GetY() < 9)
                         {
                             ghostInput = 265;
                             MoveGhost(ghostInput, i);
                         }
-                        if (ghosts[i]->GetX() == 10 && ghosts[i]->GetY() == 10)
+                        if (ghosts[i]->GetX() == 10 && ghosts[i]->GetY() == 9)
                         {
                             ghosts[i]->hasMovedFalse(); //This line checks if the ghost is out of the spawn box yet. So that they can move out of there before we start trying to move them around the grid.
                         }
@@ -946,7 +956,7 @@ const void Game::Update(float time)
 
                 for (int i = 0; i < ghosts.size(); i++) 
                 {
-                    if (ghosts[i]->GetX() == 10 && ghosts[i]->GetY() == 10) 
+                    if (ghosts[i]->GetX() == 10 && ghosts[i]->GetY() == 9) 
                     {
                         ghosts[i]->hasMovedFalse();
                         counter++;
@@ -1196,7 +1206,6 @@ const void Game::Update(float time)
     }
     if (IsPlayerAtGhost(player.GetX(), player.GetY()))
     {
-        player.decreaseLives(1);
         for (int i = 0; i < ghosts.size(); i++)
         {
             if (ghosts[i]->GetX() == player.GetX() && ghosts[i]->GetY() == player.GetY())
@@ -1212,7 +1221,18 @@ const void Game::Update(float time)
                 }
                 else if (ghostRunningAway)
                 {
-                    ghosts[i]->setPosition(8, 12);
+                    if (ghosts[i]->getGhostName() == "Blinky")
+                    {
+                        ghosts[i]->setPosition(12, 12);
+                    }
+                    if (ghosts[i]->getGhostName() == "Pinky")
+                    {
+                        ghosts[i]->setPosition(10, 12);
+                    }
+                    if (ghosts[i]->getGhostName() == "Clyde")
+                    {
+                        ghosts[i]->setPosition(8, 12);
+                    }
                     ghosts[i]->hasMovedTrue();
                     ghostExitSpawn = false;
                     PlayEatGhostSound = true;
@@ -1364,18 +1384,14 @@ void Game::HighScore()
 
 void Game::Restart() 
 {
-    for (int i = 0; i < ghosts.size(); i++)
-    {
-        delete ghosts[i];
-    }
 	setLevelNo(1); // if you die you want to go back to level 1
 	Clear();
     cherrySpawned = false;
 	ghostMoveFromSpawnCounter = 3.0f; // wait 3 seconds to release ghost
 	ghostSpawnMovementSpeed = 0.5f;
 	PrepareGrid();
-	LoadGhosts();
 	Setup();
+	LoadGhosts();
 	setScore(0);
 	setLives(3);
 	HighScore();

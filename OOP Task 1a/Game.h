@@ -106,7 +106,6 @@ class Game
 		  // ghost
 		  const bool IsGhostAtWall(int x, int y, int index) const;
 		  const bool IsGhostAtGhost(int x, int y, int index) const;
-
 		  const bool HasGhostExitSpawn(int x, int y, int index) const;
 
 	  // mutators

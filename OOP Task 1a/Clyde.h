@@ -14,6 +14,7 @@ public:
 #define CLYDE       'O'
     // constructors
     Clyde();
+    Clyde(int x, int y);
 
     // assessors
     string getGhostName() const override;

@@ -13,6 +13,7 @@ public:
 #define PINKY       'I'
 	// constructors
 	Pinky();
+	Pinky(int x, int y);
 
 	string getGhostName() const override;
 
