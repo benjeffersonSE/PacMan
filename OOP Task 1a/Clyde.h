@@ -14,11 +14,10 @@ public:
 #define CLYDE       'O'
     // constructors
     Clyde();
+    Clyde(int x, int y);
 
     // assessors
-
-	const int getDirection();
-
+    string getGhostName() const override;
     // mutators
 
 private:

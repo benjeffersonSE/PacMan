@@ -22,17 +22,12 @@ class Game
    public:
       // initialise variables
       Player player;
-      Blinky blinky;
-      Clyde clyde;
-      Pinky pinky;
       Cherry cherry;
       vector<vector<char>> PrepareGrid();
+	  ~Game();
 
 	  // variables and counters
 	  int currentDirection = 0;
-	  int clydeInput = 0;
-	  int blinkyInput = 0;
-      int pinkyInput = 0;
 	  int coinOriginalSize = 0; // used to check when only 1/4 of coins are left
 
 	  float ghostCountDown = 0.3f;
@@ -67,9 +62,6 @@ class Game
 	  bool ghostExitSpawn = false;
 
 	  // movement bools
-	  bool HasClydeMoved = false;
-	  bool HasBlinkyMoved = false;
-	  bool HasPinkyMoved = false;
 
 	  // These bools, are all used to return which way pacman is looking as to switch the direction of the sprite.
       bool playerLookLeft = false;	
@@ -97,13 +89,12 @@ class Game
 		  const bool IsCoinAtPosition(int x, int y) const;
 		  const bool IsPowerPelletAtPosition(int x, int y) const;
 		  const bool IsCherryAtPosition(int x, int y) const;
-		  const bool IsGhostAtPosition(int x, int y) const;
+
+		  const bool IsAnyGhostAtPosition(int x, int y) const;
+		  const bool IsGhostAtPosition(int x, int y, int index) const;
 
 		  // Player functions 
 		  const bool IsPlayerAtWall(int x, int y) const;
-		  const bool IsPlayerAtClyde(int x, int y) const;
-		  const bool IsPlayerAtBlinky(int x, int y) const;
-		  const bool IsPlayerAtPinky(int x, int y) const;
 		  const bool IsPlayerAtCoin(int x, int y) const;
 		  const bool IsPlayerAtGhost(int x, int y) const;
 		  const bool IsPlayerAtPowerPellet(int x, int y) const;
@@ -113,14 +104,9 @@ class Game
 		  const bool PlayerLostALife() const;
 
 		  // ghost
-		  const bool IsClydeAtWall(int x, int y) const;
-		  const bool IsBlinkyAtWall(int x, int y) const;
-		  const bool IsPinkyAtWall(int x, int y) const;
-
-		  const bool HasClydeExitSpawn(int x, int y) const;
-		  const bool HasBlinkyExitSpawn(int x, int y) const;
-		  const bool HasPinkyExitSpawn(int x, int y) const;
-
+		  const bool IsGhostAtWall(int x, int y, int index) const;
+		  const bool IsGhostAtGhost(int x, int y, int index) const;
+		  const bool HasGhostExitSpawn(int x, int y, int index) const;
 
 	  // mutators
 
@@ -148,9 +134,7 @@ class Game
 		  const void ChangeDirection(int key);
 
 		  // Ghost functions
-		  const void MovePinky(int directon);
-		  const void MoveClyde(int direction);
-		  const void MoveBlinky(int direction);
+		  const void MoveGhost(int direction, int index);
 
    private:  
 
@@ -159,14 +143,10 @@ class Game
        int highScore = 0;
        int levelNo = 1; // track which level number were on
        
-
        //Vectors
        vector<Wall> walls;
        vector<Coin> coins;
-       vector<Ghost> ghosts;
+       vector<Ghost*> ghosts;
        vector<PowerPellet> PowerPellets;
        vector<Cherry> Cherries;
-       
-       
-
 };

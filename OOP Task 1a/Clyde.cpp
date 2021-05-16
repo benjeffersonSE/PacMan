@@ -5,7 +5,12 @@ Clyde::Clyde() : symbol(CLYDE), x(0), y(0), dx(0), dy(0)
 
 }
 
-const int Clyde::getDirection()
+Clyde::Clyde(int x, int y) : symbol(CLYDE), x(x), y(y), dx(0), dy(0)
 {
-	return direction = rand() % 4 + 262;
+	this->setPosition(x, y);
+}
+
+string Clyde::getGhostName() const
+{
+	return "Clyde";
 }

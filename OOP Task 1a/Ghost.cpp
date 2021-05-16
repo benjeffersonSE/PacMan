@@ -11,6 +11,15 @@ Ghost::Ghost(int x, int y)
     this->y = y;
 }
 
+const int Ghost::getDirection()
+{
+	return direction = rand() % 4 + 262;
+}
+
+string Ghost::getGhostName() const 
+{
+	return "Ghost";
+}
 
 const void Ghost::Move(int direction)
 {
@@ -74,4 +83,19 @@ const void Ghost::setPosition(int x, int y)
 {
 	this->x = x;
 	this->y = y;
+}
+
+bool Ghost::hasMoved()
+{
+	return ghostMoved;
+}
+
+void Ghost::hasMovedTrue() 
+{
+	ghostMoved = true;
+}
+
+void Ghost::hasMovedFalse()
+{
+	ghostMoved = false;
 }

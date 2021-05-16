@@ -7,14 +7,23 @@ using namespace std;
 /// Setup and Game initialisation.g
 /// 
 
+Game::~Game() 
+{
+    for (int i = 0; i < ghosts.size(); i++)
+    {
+        delete ghosts[i];
+    }
+}
+
 //This function loads in the level designs from files and initialises variables to values that they need to be at the beginning of a game or after a win.
 void Game::Setup()
 {
     //Set up the variables needed to run the game, this happens on start up and after every time you die in the game or have completed a level.
     HasPlayerLostALife = false;
-    HasClydeMoved = true;
-    HasBlinkyMoved = true;
-    HasPinkyMoved = true;
+    for (int i = 0; i < ghosts.size(); i++)
+    {
+        ghosts[i]->hasMovedTrue();
+    }
 	needToResume = false;
     ghostExitSpawn = false;
     ghostRunningAway = false;
@@ -66,21 +75,18 @@ void Game::Setup()
 	{
 		Dir = "SaveData.txt";
 		needToResume = true;
+        for (int i = 0; i < ghosts.size(); i++) 
+        {
+            ghosts[i]->hasMovedFalse();
+        }
 		ghostExitSpawn = true;
-		HasClydeMoved = false;
-		HasBlinkyMoved = false;
-		HasPinkyMoved = false;
 		isUsingSavedData = true;
 		//file.open("SaveData.txt");
 	}
 
 	ifstream file(Dir);
 
-	//ifstream file (Dir);        
-	//ifstream file (ifstream(Dir));                             //Opens an input stream and reads in the text file 'level1.txt' to generate the level.
-
-
-
+    //Opens an input stream and reads in the text file 'level1.txt' to generate the level.
     //LineNum is used to parse through each line of the level file.
     int lineNum = 0;
 
@@ -105,7 +111,7 @@ void Game::Setup()
 					walls.push_back(Wall(i + 1, lineNum + 1));
 					break;
 				case 'g':
-					ghosts.push_back(Ghost(i + 1, lineNum + 1));
+					ghosts.push_back(new Ghost(i + 1, lineNum + 1));
 					break;
 				case 'b':
 					PowerPellets.push_back(PowerPellet(i + 1, lineNum + 1));
@@ -117,13 +123,13 @@ void Game::Setup()
 					coins.push_back(Coin(i + 1, lineNum + 1));
 					break;
 				case 'r':
-					blinky.setPosition(i + 1, lineNum + 1);
+                    ghosts.push_back(new Blinky(i + 1, lineNum + 1));
 					break;
 				case 'o':
-					clyde.setPosition(i + 1, lineNum + 1);
+                    ghosts.push_back(new Clyde(i + 1, lineNum + 1));
 					break;
 				case 'i':
-					pinky.setPosition(i + 1, lineNum + 1);
+                    ghosts.push_back(new Pinky(i + 1, lineNum + 1));
                     break;
 				case 'v':
 					player.setPosition(i + 1, lineNum + 1);
@@ -192,9 +198,22 @@ void Game::Setup()
 
 void Game::LoadGhosts() 
 {
-    clyde.setPosition(8, 12);
-    pinky.setPosition(10, 12);
-    blinky.setPosition(12, 12);
+
+    for (int i = 0; i < ghosts.size(); i++) 
+    {
+        if (ghosts[i]->getGhostName() == "Blinky") 
+        {
+            ghosts[i]->setPosition(12, 12);
+        }
+        if (ghosts[i]->getGhostName() == "Pinky")
+        {
+            ghosts[i]->setPosition(10, 12);
+        }
+        if (ghosts[i]->getGhostName() == "Clyde")
+        {
+            ghosts[i]->setPosition(8, 12);
+        }
+    }
 }
 
 void Game::Clear()
@@ -202,6 +221,11 @@ void Game::Clear()
     walls.clear();
     coins.clear();
     PowerPellets.clear();
+    for (int i = 0; i < ghosts.size(); i++)
+    {
+        delete ghosts[i];
+    }
+    ghosts.clear();
 }
 
 ///
@@ -397,43 +421,10 @@ const bool Game::IsPlayerAtGhost(int x, int y) const
 {
     for (size_t i = 0; i < ghosts.size(); i++)
     {
-        if (ghosts[i].IsAtPosition(x, y) == player.IsAtPosition(x, y))
+        if (ghosts[i]->IsAtPosition(x, y) == player.IsAtPosition(x, y))
         {
             return true;
         }
-    }
-    return false;
-}
-
-//Checks if player is at Ornge ghost.
-const bool Game::IsPlayerAtClyde(int x, int y) const
-{
-    if (clyde.IsAtPosition(x, y) == player.IsAtPosition(x, y))
-    {
-		//PlayDeathSound = true; // play death sound
-        return true;
-    }
-    return false;
-}
-
-//Checks if player is at red ghost.
-const bool Game::IsPlayerAtBlinky(int x, int y) const
-{
-    if (blinky.IsAtPosition(x, y) == player.IsAtPosition(x, y))
-    {
-        //PlayDeathSound = true; // play death sound
-        return true;
-    }
-    return false;
-}
-
-//Checks if player is at the pink ghost.
-const bool Game::IsPlayerAtPinky(int x, int y) const
-{
-    if (pinky.IsAtPosition(x, y) == player.IsAtPosition(x, y))
-    {
-        //PlayDeathSound = true; // play death sound
-        return true;
     }
     return false;
 }
@@ -466,193 +457,87 @@ const bool Game::IsPlayerAtCherry(int x, int y) const
     return false;
 }
 
-/// 
-///Ghost Functions - Includes all 4 ghosts.
-/// 
-
 ///
 /// Ghost Movement.
 /// 
-
-//Moves clyde 
-const void Game::MoveClyde(int direction)
+ 
+const void Game::MoveGhost(int direction, int index) 
 {
-	clydeInput = direction;
-    if (clydeInput == 0) 
+    int ghostInput = 0;
+
+    ghostInput = direction;
+
+    if (ghostInput == 0)
     {
-        clydeInput = clyde.getDirection();
+        ghostInput = ghosts[index]->getDirection();
     }
-    switch (clydeInput)
+
+    switch (ghostInput)
     {
     case 262:
-        clyde.Move(262);
+        ghosts[index]->Move(262);
         break;
     case 263:
-        clyde.Move(263);
+        ghosts[index]->Move(263);
         break;
     case 264:
-        clyde.Move(264);
+        ghosts[index]->Move(264);
         break;
     case 265:
-        clyde.Move(265);
+        ghosts[index]->Move(265);
         break;
     }
-    //Adds collision with walls.
-    if (IsClydeAtWall(clyde.GetX(), clyde.GetY())) 
+
+    if (IsGhostAtWall(ghosts[index]->GetX(), ghosts[index]->GetY(), index) || IsGhostAtGhost(ghosts[index]->GetX(), ghosts[index]->GetY(), index))
     {
-        switch (clydeInput)
+        switch (ghostInput)
         {
-        case 262: // right
-            clydeInput = 263;
-            MoveClyde(clydeInput); // Move clyde back.
-			clydeInput = 1;
+        case 262: // rightKey
+            ghostInput = 263;
+            MoveGhost(ghostInput, index); // Move player back - leftKey
+            ghostInput = 1;
             break;
-        case 263: // left
-			clydeInput = 262;
-            MoveClyde(clydeInput);
-			clydeInput = 1;
+        case 263: // leftkey
+            // Move player back - rightKey
+            ghostInput = 262;
+            MoveGhost(ghostInput, index);
+            ghostInput = 1;
             break;
-        case 264: // down
-			clydeInput = 265;
-            MoveClyde(clydeInput);
-			clydeInput = 1;
+        case 264: // downKey
+            ghostInput = 265;
+            MoveGhost(ghostInput, index);
+            ghostInput = 1;
+            // Move player back - upKey
             break;
-        case 265: // up
-			clydeInput = 264;
-            MoveClyde(clydeInput);
-			clydeInput = 1;
+        case 265: // upKey
+            ghostInput = 264;
+            MoveGhost(ghostInput, index);
+            ghostInput = 1;
+            // Move player back - downkey
             break;
         }
         //direction = 0;
         //HasClydeMoved = false;
-        MoveClyde(clydeInput);
+        //HasBlinkyMoved = false;
+        MoveGhost(ghostInput, index);
+    }
+
+    if (IsGhostAtGhost(ghosts[index]->GetX(), ghosts[index]->GetY(), index)) 
+    {
+        ghostInput = 265;
+        MoveGhost(ghostInput, index);
     }
 }
-
-//Moves pinky
-const void Game::MovePinky(int direction)
-{
-	pinkyInput = direction;
-	if (pinkyInput == 0)
-	{
-		pinkyInput = pinky.getDirection();
-	}
-	switch (pinkyInput)
-	{
-	case 262:
-		pinky.Move(262);
-		break;
-	case 263:
-		pinky.Move(263);
-		break;
-	case 264:
-		pinky.Move(264);
-		break;
-	case 265:
-		pinky.Move(265);
-		break;
-	}
-
-	if (IsPinkyAtWall(pinky.GetX(), pinky.GetY()))
-	{
-		switch (pinkyInput)
-		{
-		case 262: // rightKey
-			pinkyInput = 263;
-			MovePinky(pinkyInput); // Move player back - leftKey
-			pinkyInput = 1;
-			break;
-		case 263: // leftkey
-			// Move player back - rightKey
-			pinkyInput = 262;
-			MovePinky(pinkyInput);
-			pinkyInput = 1;
-			break;
-		case 264: // downKey
-			pinkyInput = 265;
-			MovePinky(pinkyInput);
-			pinkyInput = 1;
-			// Move player back - upKey
-			break;
-		case 265: // upKey
-			pinkyInput = 264;
-			MovePinky(pinkyInput);
-			pinkyInput = 1;
-			// Move player back - downkey
-			break;
-		}
-		//direction = 0;
-		//HasClydeMoved = false;
-		//HasPinkyMoved = false;
-		MovePinky(pinkyInput);
-	}
-}
-
-// Moves blinky around the grid.
-const void Game::MoveBlinky(int direction)
-{
-	blinkyInput = direction;
-	switch (blinkyInput)
-	{
-	case 262:
-		blinky.Move(262);
-		break;
-	case 263:
-		blinky.Move(263);
-		break;
-	case 264:
-		blinky.Move(264);
-		break;
-	case 265:
-		blinky.Move(265);
-		break;
-	}
-
-	if (IsBlinkyAtWall(blinky.GetX(), blinky.GetY()))
-	{
-		switch (blinkyInput)
-		{
-		case 262: // rightKey
-			blinkyInput = 263;
-			MoveBlinky(blinkyInput); // Move player back - leftKey
-			blinkyInput = 1;
-			break;
-		case 263: // leftkey
-			// Move player back - rightKey
-			blinkyInput = 262;
-			MoveBlinky(blinkyInput);
-			blinkyInput = 1;
-			break;
-		case 264: // downKey
-			blinkyInput = 265;
-			MoveBlinky(blinkyInput);
-			blinkyInput = 1;
-			// Move player back - upKey
-			break;
-		case 265: // upKey
-			blinkyInput = 264;
-			MoveBlinky(blinkyInput);
-			blinkyInput = 1;
-			// Move player back - downkey
-			break;
-		}
-		//direction = 0;
-		//HasClydeMoved = false;
-		//HasBlinkyMoved = false;
-		MoveBlinky(blinkyInput);
-	}
-}
-
 ///
 /// Ghost location checks.
 /// 
 
 //This goes through the ghosts vector and returns true or falls when given a coordinate parameter asking if a cherry is at that coordinate.
-const bool Game::IsGhostAtPosition(int x, int y) const
+const bool Game::IsAnyGhostAtPosition(int x, int y) const
 {
     for (size_t i = 0; i < ghosts.size(); ++i)
     {
-        if (ghosts[i].IsAtPosition(x, y))
+        if (ghosts[i]->IsAtPosition(x, y))
         {
             return true;
         }
@@ -661,12 +546,9 @@ const bool Game::IsGhostAtPosition(int x, int y) const
     return false;
 }
 
-
-
-//Checks if the orange ghost has exited spawn.
-const bool Game::HasClydeExitSpawn(int x, int y) const
+const bool Game::IsGhostAtPosition(int x, int y, int index) const
 {
-    if (clyde.IsAtPosition(x, y) < (10, 10))
+    if (ghosts[index]->IsAtPosition(x, y))
     {
         return true;
     }
@@ -674,25 +556,13 @@ const bool Game::HasClydeExitSpawn(int x, int y) const
     return false;
 }
 
-//Checks if the red ghost has exited spawn.
-const bool Game::HasBlinkyExitSpawn(int x, int y) const
+const bool Game::HasGhostExitSpawn(int x, int y, int index) const
 {
-    if (blinky.IsAtPosition(x, y) < (10, 10))
+    if (ghosts[index]->IsAtPosition(x, y) < (10, 10))
     {
         return true;
     }
-
-    return false;
-}
-
-//Checks if the pink ghost has exited spawn.
-const bool Game::HasPinkyExitSpawn(int x, int y) const
-{
-    if (pinky.IsAtPosition(x, y) < (10, 10))
-    {
-        return true;
-    }
-
+  
     return false;
 }
 
@@ -702,7 +572,6 @@ const bool Game::HasPinkyExitSpawn(int x, int y) const
 /// </summary>
 vector<vector<char>> Game::PrepareGrid()
 {
-
     // create the 2D grid
     vector<vector<char>> grid;
 
@@ -723,22 +592,28 @@ vector<vector<char>> Game::PrepareGrid()
             {
                 line.push_back(CHERRY);
             }
-			else if (IsGhostAtPosition(col, row))
+			else if (IsAnyGhostAtPosition(col, row))
 			{
-				line.push_back(GHOST);
+                for (int i = 0; i < ghosts.size(); i++) 
+                {
+                    if (IsGhostAtPosition(col, row, i) && ghosts[i]->getGhostName() == "Blinky")
+                    {
+                        line.push_back(BLINKY);
+                        //break;
+                    }
+                    else if (IsGhostAtPosition(col, row, i) && ghosts[i]->getGhostName() == "Clyde")
+                    {
+                        line.push_back(CLYDE);
+                        //break;
+                    }
+                    else if (IsGhostAtPosition(col, row, i) && ghosts[i]->getGhostName() == "Pinky")
+                    {
+                        line.push_back(PINKY);
+                        //break;
+                    }
+                }
+				//line.push_back(GHOST);
 			}
-			else if (row == blinky.GetY() && col == blinky.GetX()) 
-            {
-                line.push_back(BLINKY);
-            }
-            else if (row == clyde.GetY() && col == clyde.GetX()) 
-            {
-                line.push_back(CLYDE);
-            }
-            else if (row == pinky.GetY() && col == pinky.GetX())
-            {
-                line.push_back(PINKY);
-            }
             else if (IsWallAtPosition(col, row))
             {
                 line.push_back(WALL);
@@ -841,40 +716,12 @@ const bool Game::IsPlayerAtWall(int x, int y) const
     return false;
 }
 
-//Checks if the orange ghost is at the wall.
-const bool Game::IsClydeAtWall(int x, int y) const
-{
-    for (size_t i = 0; i < walls.size(); i++) 
-    {
-        if (walls[i].IsAtPosition(x, y) == clyde.IsAtPosition(x, y))
-        {
-            return true;
-        }
-    }
 
-    return false;
-}
-
-//Checks if the red ghost is at the wall.
-const bool Game::IsBlinkyAtWall(int x, int y) const
-{
-	for (size_t i = 0; i < walls.size(); i++)
-	{
-		if (walls[i].IsAtPosition(x, y) == blinky.IsAtPosition(x, y))
-		{
-			return true;
-		}
-	}
-
-	return false;
-}
-
-//Checks if the pink ghost is at the wall.
-const bool Game::IsPinkyAtWall(int x, int y) const
+const bool Game::IsGhostAtWall(int x, int y, int index) const 
 {
     for (size_t i = 0; i < walls.size(); i++)
     {
-        if (walls[i].IsAtPosition(x, y) == pinky.IsAtPosition(x, y))
+        if (walls[i].IsAtPosition(x, y) == ghosts[index]->IsAtPosition(x, y))
         {
             return true;
         }
@@ -883,6 +730,21 @@ const bool Game::IsPinkyAtWall(int x, int y) const
     return false;
 }
 
+const bool Game::IsGhostAtGhost(int x, int y, int index) const
+{
+    for (size_t i = 0; i < ghosts.size(); i++)
+    {
+        if (i != index) 
+        {
+            if (ghosts[i]->IsAtPosition(x, y) == ghosts[index]->IsAtPosition(x, y))
+            {
+                return true;
+            }
+        }
+    }
+
+    return false;
+}
 
 /// 
 /// Functions to run the game.
@@ -1040,6 +902,7 @@ const void Game::Update(float time)
     ghostCountDown -= time;                 
     ghostMoveFromSpawnCounter -= time;
     ghostSpawnMovementSpeed -= time;
+    int ghostInput = 0;
     ///
     /// Ghost Movement on update
     /// 
@@ -1062,99 +925,46 @@ const void Game::Update(float time)
                 ///Blinky the red ghost movement.
                 ///
 
-                //Function to move blinky the red ghost. Movement is different depending on if the player is powered up. If the player is powered up then the ghost will run away which is tackled later on.
-                if (HasBlinkyMoved && !isPlayerPoweredUp)
+                for (int i = 0; i < ghosts.size(); i++) 
                 {
-                    blinky.Move(265);
+                    if (ghosts[i]->hasMoved() && !isPlayerPoweredUp) 
+                    {
+                        MoveGhost(265, i);
 
-                    if (blinky.GetX() < 10)
-                    {
-                        blinkyInput = 262;
-                        MoveBlinky(blinkyInput);
-                    }
-                    if (blinky.GetX() > 10)
-                    {
-                        blinkyInput = 263;
-                        MoveBlinky(blinkyInput);
-                    }
-                    if (blinky.GetY() < 10)
-                    {
-                        blinkyInput = 265;
-                        MoveBlinky(blinkyInput);
-                    }
-                    if (blinky.GetX() == 10 && blinky.GetY() == 10)
-                    {
-                        HasBlinkyMoved = false; //This line checks if the ghost is out of the spawn box yet. So that they can move out of there before we start trying to move them around the grid.
+                        if (ghosts[i]->GetX() < 10)
+                        {
+                            ghostInput = 262;
+                            MoveGhost(ghostInput, i);
+                        }
+                        if (ghosts[i]->GetX() > 10)
+                        {
+                            ghostInput = 263;
+                            MoveGhost(ghostInput, i);
+                        }
+                        if (ghosts[i]->GetY() < 9)
+                        {
+                            ghostInput = 265;
+                            MoveGhost(ghostInput, i);
+                        }
+                        if (ghosts[i]->GetX() == 10 && ghosts[i]->GetY() == 9)
+                        {
+                            ghosts[i]->hasMovedFalse(); //This line checks if the ghost is out of the spawn box yet. So that they can move out of there before we start trying to move them around the grid.
+                        }
                     }
                 }
+                int counter = -1;
 
-                ///
-                /// Pinky the pink ghost movement.
-                ///
-
-                //Statement to move pinky the pink ghost. Movement is different depending on if the player is powered up. If the player is powered up then the ghost will run away which is tackled later on.
-                if (HasPinkyMoved && !isPlayerPoweredUp)
+                for (int i = 0; i < ghosts.size(); i++) 
                 {
-                    pinky.Move(265);
-
-                    if (pinky.GetX() < 10)
+                    if (ghosts[i]->GetX() == 10 && ghosts[i]->GetY() == 9) 
                     {
-                        pinkyInput = 262;
-                        MovePinky(pinkyInput);
+                        ghosts[i]->hasMovedFalse();
+                        counter++;
                     }
-                    if (pinky.GetX() > 10)
+                    if (counter == i) 
                     {
-                        pinkyInput = 263;
-                        MovePinky(pinkyInput);
+                        ghostExitSpawn = true;
                     }
-                    if (pinky.GetY() < 10)
-                    {
-                        pinkyInput = 265;
-                        MovePinky(pinkyInput);
-                    }
-                    if (pinky.GetX() == 10 && pinky.GetY() == 10)
-                    {
-                        HasPinkyMoved = false; //This line checks if the ghost is out of the spawn box yet. So that they can move out of there before we start trying to move them around the grid.
-                    }
-                }
-
-                ///
-                /// Clyde the orange ghost movement.
-                ///
-
-                //Function to move Clyde the orange ghost. Movement is different depending on if the player is powered up. If the player is powered up then the ghost will run away which is tackled later on.
-                if (HasClydeMoved && !isPlayerPoweredUp)
-                {
-                    clyde.Move(265);
-
-                    if (clyde.GetX() < 10)
-                    {
-                        clydeInput = 262;
-                        MoveClyde(clydeInput);
-                    }
-                    if (clyde.GetX() > 10)
-                    {
-                        clydeInput = 263;
-                        MoveClyde(clydeInput);
-                    }
-                    if (clyde.GetY() > 10)
-                    {
-                        clydeInput = 265;
-                        MoveClyde(clydeInput);
-                    }
-                    if (clyde.GetX() == 10 && clyde.GetY() == 10)
-                    {
-                        HasClydeMoved = false; //This line checks if the ghost is out of the spawn box yet. So that they can move out of there before we start trying to move them around the grid.
-                    }
-                }
-
-                //This tells the program that on the next run through of the update function, the ghosts are out of the spawn box and we can begin moving them around the grid.
-                if ((clyde.GetX() == 10 && clyde.GetY() == 10) && (blinky.GetX() == 10 && blinky.GetY() == 10) && (pinky.GetX() == 10 && pinky.GetY() == 10))
-                {
-                    ghostExitSpawn = true;
-                    HasBlinkyMoved = false;
-                    HasClydeMoved = false;
-					HasPinkyMoved = false;
                 }
             }
         }
@@ -1182,99 +992,86 @@ const void Game::Update(float time)
         ProcessInput(currentDirection);
         countDown = 0.2f;
     }
-
     ///
     /// More ghost movement.
     ///
 
-
     if (ghostCountDown <= 0) // loops every 0.3 seconds
     {
-
-		if (!HasClydeMoved)
-		{
-			if ((clyde.GetX() == 10 && clyde.GetY() == 10) || (clyde.GetX() == 10 && clyde.GetY() == 9))
-			{
-				clydeInput = 265;
-				MoveClyde(clydeInput);
-			}
-			if (clydeInput == 1)
-			{
-				clydeInput = 0;
-			}
-			MoveClyde(clydeInput);
-		}
-
-		if (!HasPinkyMoved)
-		{
-			if ((pinky.GetX() == 10 && pinky.GetY() == 10) || (pinky.GetX() == 10 && pinky.GetY() == 9))
-			{
-				pinkyInput = 265;
-				MovePinky(pinkyInput);
-			}
-			if (pinkyInput == 1)
-			{
-				pinkyInput = 0;
-			}
-			MovePinky(pinkyInput);
-		}
-
-        if (!HasBlinkyMoved)
+        for (int i = 0; i < ghosts.size(); i++) 
         {
-            if ((blinky.GetX() == 10 && blinky.GetY() == 9) || (blinky.GetX() == 10 && blinky.GetY() == 10))
+            if (!ghosts[i]->hasMoved()) 
             {
-                blinkyInput = 265;
-                MoveBlinky(blinkyInput);
-            }
-            if (!ghostRunningAway)
-            {
-                if (blinky.GetX() < player.GetX())
+                if (ghosts[i]->getGhostName() != "Blinky") 
                 {
-                    blinkyInput = 262;
-                    MoveBlinky(blinkyInput);
+                    if ((ghosts[i]->GetX() == 10 && ghosts[i]->GetY() == 10) || (ghosts[i]->GetX() == 10 && ghosts[i]->GetY() == 9))
+                    {
+                        ghostInput = i;
+                        MoveGhost(ghostInput, i);
+                    }
+                    if (ghostInput == 1)
+                    {
+                        ghostInput = 0;
+                    }
+                    MoveGhost(ghostInput, i);
                 }
-                if (blinky.GetX() > player.GetX())
+                else
                 {
-                    blinkyInput = 263;
-                    MoveBlinky(blinkyInput);
-                }
-                if (blinky.GetY() < player.GetY())
-                {
-                    blinkyInput = 264;
-                    MoveBlinky(blinkyInput);
-                }
-                if (blinky.GetY() > player.GetY())
-                {
-                    blinkyInput = 265;
-                    MoveBlinky(blinkyInput);
-                }
-            }
-            if (ghostRunningAway)
-            {
+                    if ((ghosts[i]->GetX() == 10 && ghosts[i]->GetY() == 9) || (ghosts[i]->GetX() == 10 && ghosts[i]->GetY() == 10))
+                    {
+                        ghostInput = 265;
+                        MoveGhost(ghostInput, i);
+                    }
 
-                if (blinky.GetX() > player.GetX())
-                {
-                    blinkyInput = 262;
-                    MoveBlinky(blinkyInput);
+                    if (!ghostRunningAway)
+                    {
+                        if (ghosts[i]->GetX() < player.GetX())
+                        {
+                            ghostInput = 262;
+                            MoveGhost(ghostInput, i);
+                        }
+                        if (ghosts[i]->GetX() > player.GetX())
+                        {
+                            ghostInput = 263;
+                            MoveGhost(ghostInput, i);
+                        }
+                        if (ghosts[i]->GetY() < player.GetY())
+                        {
+                            ghostInput = 264;
+                            MoveGhost(ghostInput, i);
+                        }
+                        if (ghosts[i]->GetY() > player.GetY())
+                        {
+                            ghostInput = 265;
+                            MoveGhost(ghostInput, i);
+                        }
+                    }
                 }
-                if (blinky.GetX() < player.GetX())
+                
+                if (ghostRunningAway)
                 {
-                    blinkyInput = 263;
-                    MoveBlinky(blinkyInput);
-                }
-                if (blinky.GetY() > player.GetY())
-                {
-                    blinkyInput = 264;
-                    MoveBlinky(blinkyInput);
-                }
-                if (blinky.GetY() < player.GetY())
-                {
-                    blinkyInput = 265;
-                    MoveBlinky(blinkyInput);
+                    if (ghosts[i]->GetX() > player.GetX())
+                    {
+                        ghostInput = 262;
+                        MoveGhost(ghostInput, i);
+                    }
+                    if (ghosts[i]->GetX() < player.GetX())
+                    {
+                        ghostInput = 263;
+                        MoveGhost(ghostInput, i);
+                    }
+                    if (ghosts[i]->GetY() > player.GetY())
+                    {
+                        ghostInput = 264;
+                        MoveGhost(ghostInput, i);
+                    }
+                    if (ghosts[i]->GetY() < player.GetY())
+                    {
+                        ghostInput = 265;
+                        MoveGhost(ghostInput, i);
+                    }
                 }
             }
-
-            //MoveBlinky(blinkyInput);
         }
         ghostCountDown = 0.3f;
     }
@@ -1289,9 +1086,10 @@ const void Game::Update(float time)
 				LoadGhosts();
 			}
 		}
-		HasClydeMoved = true;
-		HasBlinkyMoved = true;
-        HasPinkyMoved = true;
+        for (int i = 0; i < ghosts.size(); i++) 
+        {
+            ghosts[i]->hasMovedTrue();
+        }
 		ghostExitSpawn = false;
 		ghostMoveFromSpawnCounter = 3.0f; // wait 3 seconds to release ghost
 		ghostSpawnMovementSpeed = 0.5f;
@@ -1342,21 +1140,21 @@ const void Game::Update(float time)
 				if(isUsingSavedData) // only if were resuming from loading a save do we want to ghosts not to move out of the box
 				{
 					ghostExitSpawn = true;
-					HasClydeMoved = false;
-					HasBlinkyMoved = false;
-					HasPinkyMoved = false;
+                    for (int i = 0; i < ghosts.size(); i++)
+                    {
+                        ghosts[i]->hasMovedFalse();
+                    }
 				}
 				else 
 				{
 					ghostExitSpawn = false;
-					HasClydeMoved = true;
-					HasBlinkyMoved = true;
-					HasPinkyMoved = true;
+                    for (int i = 0; i < ghosts.size(); i++)
+                    {
+                        ghosts[i]->hasMovedTrue();
+                    }
 				}
 				needToResume = false;
 			}
-
-            //player.UpdatePosition(270, 270);
             if (HasPlayerWon()) 
             {              
 				increaseLevelNo(1);
@@ -1369,7 +1167,6 @@ const void Game::Update(float time)
             }
             if (PlayerLostALife()) 
             {
-                //ghosts.push_back(Ghost(10, 10));
                 PrepareGrid();
                 HasPlayerLostALife = false;
             }
@@ -1379,7 +1176,6 @@ const void Game::Update(float time)
 				Restart();
             }
         }
-
     }
 
 	if (IsPlayerAtCherry(player.GetX(), player.GetY()))
@@ -1410,92 +1206,40 @@ const void Game::Update(float time)
     }
     if (IsPlayerAtGhost(player.GetX(), player.GetY()))
     {
-        player.decreaseLives(1);
         for (int i = 0; i < ghosts.size(); i++)
         {
-            if (ghosts[i].GetX() == player.GetX() && ghosts[i].GetY() == player.GetY())
+            if (ghosts[i]->GetX() == player.GetX() && ghosts[i]->GetY() == player.GetY())
             {
-                HasPlayerLostALife = true;
-                ghosts.erase(ghosts.begin() + i);
-                break;
-            }
-        }
-    }
+                ghostInput = 1;
+                ghosts[i]->Move(ghostInput);
 
-    if(IsPlayerAtClyde(player.GetX(), player.GetY())) 
-    {
-        if (clyde.GetX() == player.GetX() && clyde.GetY() == player.GetY()) 
-        {
-			clydeInput = 1;
-			clyde.Move(clydeInput);
-
-			if (!ghostRunningAway) 
-			{
-				player.decreaseLives(1);
-                PlayDeathSound = true; // play death sound
-				HasPlayerLostALife = true;
-			}
-			else if(ghostRunningAway) 
-			{
-				clyde.setPosition(8, 12);
-				HasClydeMoved = true;
-				ghostExitSpawn = false;
-                PlayEatGhostSound = true;
-				ghostMoveFromSpawnCounter = 3.0f; // wait 3 seconds to release ghost
-				ghostSpawnMovementSpeed = 0.5f;
-                player.increaseScore(200);
-			}
-        }
-    }
-
-	if (IsPlayerAtBlinky(player.GetX(), player.GetY()))
-	{
-		if (blinky.GetX() == player.GetX() && blinky.GetY() == player.GetY())
-		{
-			blinkyInput = 0;
-			blinky.Move(blinkyInput);
-
-			if (!ghostRunningAway)
-			{
-				player.decreaseLives(1);
-                PlayDeathSound = true; // play death 
-				HasPlayerLostALife = true;
-			}
-			else if (ghostRunningAway)
-			{
-				blinky.setPosition(12, 12);
-				HasBlinkyMoved = true;
-				ghostExitSpawn = false;
-                PlayEatGhostSound = true;
-				ghostMoveFromSpawnCounter = 3.0f; // wait 3 seconds to release ghost
-				ghostSpawnMovementSpeed = 0.5f;
-                player.increaseScore(200);
-			}
-		}
-	}
-
-    if (IsPlayerAtPinky(player.GetX(), player.GetY()))
-    {
-        if (pinky.GetX() == player.GetX() && pinky.GetY() == player.GetY())
-        {
-            pinkyInput = 0;
-            pinky.Move(pinkyInput);
-
-            if (!ghostRunningAway)
-            {
-                player.decreaseLives(1);
-                PlayDeathSound = true; // play death 
-                HasPlayerLostALife = true;
-            }
-			else if (ghostRunningAway)
-            {
-				pinky.setPosition(10, 12);
-                HasPinkyMoved = true;
-                ghostExitSpawn = false;
-                PlayEatGhostSound = true;
-                ghostMoveFromSpawnCounter = 3.0f; // wait 3 seconds to release ghost
-                ghostSpawnMovementSpeed = 0.5f;
-                player.increaseScore(200);
+                if (!ghostRunningAway)
+                {
+                    player.decreaseLives(1);
+                    PlayDeathSound = true; // play death sound
+                    HasPlayerLostALife = true;
+                }
+                else if (ghostRunningAway)
+                {
+                    if (ghosts[i]->getGhostName() == "Blinky")
+                    {
+                        ghosts[i]->setPosition(12, 12);
+                    }
+                    if (ghosts[i]->getGhostName() == "Pinky")
+                    {
+                        ghosts[i]->setPosition(10, 12);
+                    }
+                    if (ghosts[i]->getGhostName() == "Clyde")
+                    {
+                        ghosts[i]->setPosition(8, 12);
+                    }
+                    ghosts[i]->hasMovedTrue();
+                    ghostExitSpawn = false;
+                    PlayEatGhostSound = true;
+                    ghostMoveFromSpawnCounter = 3.0f; // wait 3 seconds to release ghost
+                    ghostSpawnMovementSpeed = 0.5f;
+                    player.increaseScore(200);
+                }
             }
         }
     }
@@ -1574,18 +1318,14 @@ const void Game::Update(float time)
     ///Ghosts at the edge of the screen.
     ///
 
-
-    if ((clyde.GetX() == 1 || clyde.GetY() == 1 || clyde.GetX() == 20 || clyde.GetY() == 20) && countDown > 0.2) // if ghost has hit the edge of the screen
+    for (int i = 0; i < ghosts.size(); i++) 
     {
-        clydeInput = 0; // new random position
+        if ((ghosts[i]->GetX() == 1 || ghosts[i]->GetY() == 1 || ghosts[i]->GetX() == 20 || ghosts[i]->GetY() == 20) && countDown > 0.2) // if ghost has hit the edge of the screen
+        {
+            ghostInput = 0; // new random position
+        }
     }
-
-	if ((pinky.GetX() == 1 || pinky.GetY() == 1 || pinky.GetX() == 20 || pinky.GetY() == 20) && countDown > 0.2) // if ghost has hit the edge of the screen
-	{
-		pinkyInput = 0; // new random position
-	}
 }
-
     ///
     /// End of game functions.
     ///
@@ -1649,9 +1389,9 @@ void Game::Restart()
     cherrySpawned = false;
 	ghostMoveFromSpawnCounter = 3.0f; // wait 3 seconds to release ghost
 	ghostSpawnMovementSpeed = 0.5f;
-	LoadGhosts();
 	PrepareGrid();
 	Setup();
+	LoadGhosts();
 	setScore(0);
 	setLives(3);
 	HighScore();

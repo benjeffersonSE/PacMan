@@ -13,6 +13,9 @@ public:
 #define BLINKY       'R'
 	// constructors
 	Blinky();
+	Blinky(int x, int y);
+
+	string getGhostName() const override;
 
 private:
 	// data members

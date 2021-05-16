@@ -13,8 +13,9 @@ public:
 #define PINKY       'I'
 	// constructors
 	Pinky();
+	Pinky(int x, int y);
 
-	const int getDirection();
+	string getGhostName() const override;
 
 private:
 	// data members
